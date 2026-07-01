@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+{q:"The Ministry of Electronics and Information Technology (MeitY) recently approved 29 proposals under the 4th tranche of the Electronics Components Manufacturing Scheme (ECMS). The projected investment approved under these proposals is:", options:["Rs. 6,104 crore","Rs. 7,104 crore","Rs. 8,145 crore","Rs. 7,450 crore"], answer:1},
+
+{q:"According to MeitY, the proposals approved under the fourth tranche of the Electronics Components Manufacturing Scheme (ECMS) are expected to generate production worth approximately:", options:["Rs. 74,515 crore","Rs. 84,515 crore","Rs. 81,450 crore","Rs. 94,515 crore"], answer:1},
+
+{q:"The latest approvals under the Electronics Components Manufacturing Scheme (ECMS) are expected to create nearly how many direct employment opportunities?", options:["12,846","14,246","15,426","13,642"], answer:1},
+
+{q:"After the latest approvals under the Electronics Components Manufacturing Scheme (ECMS), the total number of approved applications has reached:", options:["69","71","75","79"], answer:2},
+
+{q:"The Ministry of Environment, Forest and Climate Change (MoEFCC) designated Bhavasagara Referral Centre as India's first National Repository for Deep-Sea Fauna. The repository is located in:", options:["Visakhapatnam, Andhra Pradesh","Kochi, Kerala","Chennai, Tamil Nadu","Mangaluru, Karnataka"], answer:1},
+
+{q:"India's first National Repository for Deep-Sea Fauna, namely the Bhavasagara Referral Centre, has been designated under which legal provision?", options:["Wildlife Protection Act, 1972","Environment Protection Act, 1986","Section 39 of the Biological Diversity Act, 2002","Biological Diversity Rules, 2004"], answer:2},
+
+{q:"The Ministry of Education (MoE), in collaboration with the Central Board of Secondary Education (CBSE), has introduced a new curriculum on Computational Thinking (CT) and Artificial Intelligence (AI) for students of:", options:["Classes 1–5","Classes 3–8","Classes 6–10","Classes 5–9"], answer:1},
+
+{q:"The newly launched Computational Thinking (CT) and Artificial Intelligence (AI) curriculum by the Ministry of Education (MoE) will be implemented from:", options:["Academic session 2025–26","Academic session 2026–27","Academic session 2027–28","Academic session 2028–29"], answer:1},
+
+{q:"Under the newly launched Computational Thinking (CT) and Artificial Intelligence (AI) curriculum, Classes 3–5 will primarily focus on:", options:["Machine learning models and Python programming","Robotics and cloud computing","Activity-based learning with computational thinking and logic-building exercises","AI ethics and data analytics"], answer:2},
+
+{q:"The new AI and Computational Thinking curriculum launched by the Ministry of Education (MoE) aligns with which of the following policy-framework combinations?", options:["NEP 2019 and NCF 2020","NEP 2020 and National Curriculum Framework for School Education (NCF-SE) 2023","NCF 2005 and NEP 2020","NEP 2022 and NCF-SE 2024"], answer:1},
+
+{q:"Prime Minister Narendra Modi virtually launched 'Karmayogi Sadhana Saptah 2026' as part of which flagship capacity-building initiative?", options:["PM Gati Shakti","Mission Karmayogi","National e-Governance Plan","Digital India Mission"], answer:1},
+
+{q:"The event marking the launch of Karmayogi Sadhana Saptah 2026 was held at:", options:["Vigyan Bhawan, New Delhi","Bharat Mandapam, New Delhi","Dr. Ambedkar International Centre (DAIC), New Delhi","Sushma Swaraj Bhawan, New Delhi"], answer:2},
+
+{q:"The SADHANA Saptah programme launched under Mission Karmayogi is structured around which three pillars?", options:["Digitalisation, Sustainability and Inclusion","Technology, Tradition and Tangible Outcomes","Governance, Transparency and Accountability","Innovation, Integrity and Inclusiveness"], answer:1},
+
+{q:"The Ministry of Education (MoE), through the Department of Higher Education (DHE), has declared the National Council of Educational Research and Training (NCERT) as a:", options:["Central University","Institution of National Importance","Deemed to be University","State University"], answer:2},
+
+{q:"NCERT has been declared a 'Deemed to be University' under which legislation?", options:["National Education Policy, 2020","Right to Education Act, 2009","Section 3 of the University Grants Commission (UGC) Act, 1956","Central Universities Act, 2009"], answer:2},
+
+{q:"Which one of the following is NOT among the constituent institutions included under NCERT's newly granted Deemed to be University status?", options:["Regional Institute of Education (RIE), Shillong","Regional Institute of Education (RIE), Mysuru","Regional Institute of Education (RIE), Nagpur","PSSCIVE, Bhopal"], answer:2},
+
+{q:"The headquarters of the National Council of Educational Research and Training (NCERT) is located in:", options:["New Delhi","Noida","Gurugram","Chandigarh"], answer:0},
+
+{q:"The Bharat Tribes Fest (BTF) 2026, celebrating tribal culture and entrepreneurship, was organised at:", options:["Pragati Maidan, New Delhi","Sunder Nursery, New Delhi","India Habitat Centre, New Delhi","Kartavya Path, New Delhi"], answer:1},
+
+{q:"Bharat Tribes Fest (BTF) 2026 was organised by the Ministry of Tribal Affairs (MoTA) in association with:", options:["National Scheduled Tribes Finance and Development Corporation (NSTFDC)","Tribal Cooperative Marketing Development Federation of India (TRIFED)","National Tribal Research Institute (NTRI)","Ministry of Rural Development"], answer:1},
+
+{q:"During Bharat Tribes Fest (BTF) 2026, which exclusive signature brand dedicated to tribal weaves and crafts was launched?", options:["Tribal Bharat","RISA: Timeless Tribal","Van Dhan Heritage","Adi Kala Bharat"], answer:1},
+
+{q:"Bharat Tribes Fest (BTF) 2026 recorded approximately:", options:["1 lakh visitors and Rs.3.8 crore sales","1.25 lakh visitors and Rs.4 crore sales","1.5 lakh visitors and Rs.4.5 crore sales","2 lakh visitors and Rs.5 crore sales"], answer:2},
+
+{q:"The Ministry of Information and Broadcasting (MIB) notified the Television (TV) Rating Policy (TRP 2026) replacing guidelines issued in:", options:["2012","2014","2016","2018"], answer:1},
+
+{q:"Under the Television Rating Policy (TRP 2026), which of the following types of viewership will not be considered while measuring television audience?", options:["Recorded viewership","Landing page viewership","Delayed broadcast viewership","Regional language viewership"], answer:1},
+
+{q:"As per the governance norms under the Television Rating Policy (TRP 2026), at least what percentage of the Board must comprise independent directors?", options:["One-third","Forty per cent","Fifty per cent","Sixty per cent"], answer:2},
+
+{q:"The Television Rating Policy (TRP 2026) reduced the minimum net-worth requirement for audience measurement agencies from:", options:["Rs.25 crore to Rs.10 crore","Rs.20 crore to Rs.5 crore","Rs.15 crore to Rs.5 crore","Rs.20 crore to Rs.10 crore"], answer:1},
+
+{q:"According to the Television Rating Policy (TRP 2026), the target is to expand the sample size to 80,000 metered homes within:", options:["12 months","18 months","24 months","36 months"], answer:1},
+
+{q:"Union Minister of State Dr. Jitendra Singh launched India's first-ever Administrative Capacity Building Programme specifically for:", options:["Doctors and Public Health Officials","Scientists and Academicians","Civil Engineers and Architects","Police Officers and Prosecutors"], answer:1},
+
+{q:"The Administrative Capacity Building Programme launched by Dr. Jitendra Singh was introduced under:", options:["National Knowledge Network","Mission Karmayogi during SADHANA Saptah","Digital India Mission","PM eVIDYA"], answer:1},
+
+{q:"Which digital platform was revamped in connection with the launch of the Administrative Capacity Building Programme?", options:["iGOT Karmayogi Portal","UNNATI Portal","Swayam Plus Portal","National Academic Depository"], answer:1},
+
+{q:"NITI Aayog's Atal Innovation Mission (AIM) launched ATL Sarthi and Mentor India Academy at:", options:["IIT Hyderabad","Vardhaman College of Engineering, Hyderabad","Osmania University","NIT Warangal"], answer:1},
+
+{q:"Under the newly launched ATL Sarthi initiative, Atal Tinkering Labs (ATLs) will be grouped into:", options:["Innovation Zones","Digital Innovation Hubs","Regional Clusters supported by nodal institutions","National Innovation Circuits"], answer:2},
+
+{q:"The Atal Innovation Mission (AIM) functions under which organisation?", options:["Department of Science and Technology (DST)","Ministry of Education (MoE)","NITI Aayog","Ministry of Electronics and Information Technology (MeitY)"], answer:2},
+
+{q:"The Atal Innovation Mission (AIM) was launched in:", options:["January 2015","January 2016","April 2016","August 2017"], answer:1},
+
+{q:"Following the Andhra Pradesh Reorganisation (Amendment) Act, 2026, which city has been officially notified as the sole capital of Andhra Pradesh?", options:["Visakhapatnam","Amaravati","Kurnool","Hyderabad"], answer:1},
+
+{q:"The notification declaring Amaravati as the exclusive capital of Andhra Pradesh was issued by:", options:["Ministry of Home Affairs (MHA)","Ministry of Parliamentary Affairs","Ministry of Law and Justice (MoL&J)","Department of Legal Affairs"], answer:2},
+
+{q:"The Andhra Pradesh Reorganisation (Amendment) Act, 2026 modified which section of the Andhra Pradesh Reorganisation Act, 2014 relating to the common capital arrangement?", options:["Section 3","Section 5","Section 7","Section 10"], answer:1},
+
+{q:"Under the earlier proposal before the latest amendment, Andhra Pradesh had planned to adopt which combination of capitals?", options:["Amaravati, Tirupati and Vijayawada","Amaravati, Visakhapatnam and Kurnool","Visakhapatnam, Vijayawada and Kurnool","Amaravati, Nellore and Kakinada"], answer:1},
+
+{q:"Which one of the following initiatives is directly associated with the objective of strengthening school-level innovation ecosystems?", options:["Television Rating Policy (TRP 2026)","ATL Sarthi and Mentor India Academy","Bharat Tribes Fest 2026","Bhavasagara Referral Centre"], answer:1},
+
+{q:"Which of the following initiatives primarily aims at enhancing governance and administrative capacity among scientists and academicians?", options:["RISA: Timeless Tribal","Administrative Capacity Building Programme under Mission Karmayogi","Computational Thinking Curriculum for Classes 3–8","Electronics Components Manufacturing Scheme (ECMS)"], answer:1},
+
+{q:"Which of the following pairs is correctly matched?", options:["Bhavasagara Referral Centre — India's first National Repository for Deep-Sea Fauna","RISA: Timeless Tribal — Television audience measurement framework","ATL Sarthi — Electronics manufacturing incentive programme","ECMS — National repository for marine biodiversity"], answer:0},
+
+{q:"India recently achieved first criticality of its indigenously built 500 Megawatt electric (MWe) Prototype Fast Breeder Reactor (PFBR) at Kalpakkam. The reactor has been developed by which organization?", options:["Nuclear Power Corporation of India Limited (NPCIL)","Bharatiya Nabhikiya Vidyut Nigam Limited (BHAVINI)","Bhabha Atomic Research Centre (BARC)","Indira Gandhi Centre for Atomic Research (IGCAR)"], answer:1},
+
+{q:"The 500 MWe Prototype Fast Breeder Reactor (PFBR), which recently achieved first criticality, has been designed by:", options:["Bhabha Atomic Research Centre (BARC)","Nuclear Fuel Complex (NFC)","Indira Gandhi Centre for Atomic Research (IGCAR)","Atomic Energy Regulatory Board (AERB)"], answer:2},
+
+{q:"India's first indigenously developed Prototype Fast Breeder Reactor (PFBR) is located at:", options:["Tarapur, Maharashtra","Kudankulam, Tamil Nadu","Kalpakkam, Tamil Nadu","Rawatbhata, Rajasthan"], answer:2},
+
+{q:"The recently commissioned Prototype Fast Breeder Reactor (PFBR) belongs to which stage of India's three-stage nuclear power programme?", options:["First Stage","Second Stage","Third Stage","Pilot Stage"], answer:1},
+
+{q:"The Prototype Fast Breeder Reactor (PFBR) at Kalpakkam uses which of the following as its fuel?", options:["Enriched Uranium fuel","Thorium fuel bundles","Uranium-Plutonium Mixed Oxide (MOX) fuel","Natural Uranium fuel"], answer:2},
+
+{q:"According to the Ministry of New and Renewable Energy (MNRE), India added a record wind energy capacity during FY26 amounting to:", options:["5.15 GW","6.05 GW","5.65 GW","6.50 GW"], answer:1},
+
+{q:"India's wind power addition in FY26 represented approximately what percentage increase over FY25?", options:["36%","42%","46%","52%"], answer:2},
+
+{q:"With the latest additions, India's cumulative installed wind energy capacity has crossed:", options:["50 GW","54 GW","56 GW","60 GW"], answer:2},
+
+{q:"The expansion of wind energy capacity contributes towards India's target of achieving non-fossil fuel-based electricity capacity of:", options:["400 GW by 2030","450 GW by 2030","500 GW by 2030","550 GW by 2035"], answer:2},
+
+{q:"The National Biodiversity Authority (NBA) has notified additional institutions as National Repositories under Section 39 of the Biological Diversity Act, 2002. Which of the following institutions in Kochi was notified?", options:["National Institute of Oceanography (NIO)","Centre for Marine Living Resources and Ecology (CMLRE)","National Centre for Coastal Research (NCCR)","National Institute of Ocean Technology (NIOT)"], answer:1},
+
+{q:"The MACS Collection of Microorganisms and National Fungal Culture Collection is maintained at:", options:["Indian Institute of Science, Bengaluru","Agharkar Research Institute (ARI), Pune","National Chemical Laboratory (NCL), Pune","Bhabha Atomic Research Centre (BARC), Mumbai"], answer:1},
+
+{q:"Following the latest notification by the National Biodiversity Authority (NBA), the total number of National Repositories in India has become:", options:["16","18","20","22"], answer:2},
+
+{q:"Which Regional Passport Office (RPO) became the first in India to introduce both Braille script and Sign Language services for differently-abled applicants?", options:["Chennai","Bengaluru","Bhopal","Jaipur"], answer:2},
+
+{q:"The Braille and Sign Language initiative launched by the Regional Passport Office (RPO), Bhopal, primarily aims to benefit:", options:["Senior citizens only","Defence personnel","Visually impaired and speech/hearing-impaired applicants","Overseas Indian students"], answer:2},
+
+{q:"The Passport Seva Programme, under which accessibility services were introduced at the Regional Passport Office (RPO), functions under which ministry?", options:["Ministry of Home Affairs (MHA)","Ministry of External Affairs (MEA)","Ministry of Social Justice and Empowerment (MSJE)","Ministry of Electronics and Information Technology (MeitY)"], answer:1},
+
+{q:"Union Minister Jayant Chaudhary initiated a campaign to establish the Skills Outcomes Fund (SOF) with the objective of:", options:["Promoting overseas employment only","Enhancing employment opportunities for youth from low-income backgrounds","Funding startup incubators exclusively","Supporting agricultural entrepreneurship"], answer:1},
+
+{q:"The proposed Skills Outcomes Fund (SOF) is being anchored by which organization?", options:["National Skill Development Agency (NSDA)","National Skill Development Corporation (NSDC)","National Institute for Entrepreneurship and Small Business Development (NIESBUD)","Directorate General of Training (DGT)"], answer:1},
+
+{q:"The campaign for establishing the Skills Outcomes Fund (SOF) has proposed a fund allocation of approximately:", options:["Rs.430 crore","Rs.500 crore","Rs.530 crore","Rs.630 crore"], answer:2},
+
+{q:"NITI Aayog released the second edition of its report titled:", options:["Women and Financial Inclusion in India","From Borrowers to Builders: Women and India's Evolving Credit Market","Women Entrepreneurs and India's Growth Story","Credit Inclusion for Women 2026"], answer:1},
+
+{q:"According to NITI Aayog's latest report, women currently hold a credit portfolio worth approximately:", options:["Rs.66 lakh crore","Rs.72 lakh crore","Rs.76 lakh crore","Rs.80 lakh crore"], answer:2},
+
+{q:"The report states that women's credit penetration increased from 19% in 2017 to approximately:", options:["30% in 2025","34% in 2025","36% in 2025","40% in 2025"], answer:2},
+
+{q:"Union Minister Dr. Jitendra Singh announced a Doppler Weather Radar (DWR) under which national initiative?", options:["Mission LiFE","Mission Mausam","National Monsoon Mission","National Climate Mission"], answer:1},
+
+{q:"The proposed Seismological Observatory and Doppler Weather Radar (DWR) will be established in which districts of Jammu & Kashmir?", options:["Jammu and Samba","Srinagar and Budgam","Kishtwar and Doda","Rajouri and Poonch"], answer:2},
+
+{q:"The primary objective of establishing a Seismological Observatory is to:", options:["Monitor glacier movements","Strengthen India's national seismic monitoring network","Forecast cyclones","Measure groundwater reserves"], answer:1},
+
+{q:"The 'Aluminium Bharat' initiative has been launched by which organization?", options:["Aluminium Association of India (AAI)","Aluminium Extrusion Manufacturers Association of India (ALEMAI)","Federation of Indian Mineral Industries (FIMI)","Indian Aluminium Producers Association (IAPA)"], answer:1},
+
+{q:"The primary objective of the 'Aluminium Bharat' initiative is to:", options:["Promote aluminium exports only","Enhance domestic manufacturing capabilities and sustainable industrial growth","Replace steel with aluminium in construction","Develop aluminium mining exclusively"], answer:1},
+
+{q:"India currently ranks at which position globally in aluminium production?", options:["First","Second","Third","Fourth"], answer:1},
+
+{q:"The Pradhan Mantri MUDRA Yojana (PMMY) recently completed how many years since its launch?", options:["9 years","10 years","11 years","12 years"], answer:2},
+
+{q:"The Pradhan Mantri MUDRA Yojana (PMMY) was launched on:", options:["1 April 2015","8 April 2015","15 August 2015","2 October 2015"], answer:1},
+
+{q:"Under the Tarun Plus category of Pradhan Mantri MUDRA Yojana (PMMY), loans are available up to:", options:["Rs.10 lakh","Rs.15 lakh","Rs.20 lakh","Rs.25 lakh"], answer:2},
+
+{q:"The Pradhan Mantri MUDRA Yojana (PMMY) is implemented by which department?", options:["Department of Expenditure","Department of Financial Services (DFS)","Department for Promotion of Industry and Internal Trade (DPIIT)","Department of Economic Affairs (DEA)"], answer:1},
+
+{q:"The Ministry of Civil Aviation (MoCA) has approved the development of which two new airports in Telangana?", options:["Karimnagar and Nizamabad","Warangal and Adilabad","Khammam and Mahabubnagar","Nalgonda and Medak"], answer:1},
+
+{q:"The Adilabad Airport approved by the Ministry of Civil Aviation (MoCA) is planned to serve:", options:["Cargo operations only","Civilian operations only","Civilian operations and armed forces training","Defence operations only"], answer:2},
+
+{q:"The Pension Fund Regulatory and Development Authority (PFRDA) approved which Asset Management Company (AMC) to sponsor a pension fund under the National Pension System (NPS)?", options:["SBI Funds Management Ltd.","HDFC Asset Management Company","PPFAS Asset Management Company (AMC)","Nippon India Asset Management"], answer:2},
+
+{q:"The National Pension System (NPS) was initially introduced for government employees in:", options:["2003","2004","2006","2009"], answer:1},
+
+{q:"The National Pension System (NPS) was extended to all Indian citizens in:", options:["2007","2008","2009","2010"], answer:2},
+
+{q:"The National Highways Authority of India (NHAI) has launched the 'Arogya Van' initiative primarily to:", options:["Develop highway logistics parks","Promote medicinal tree plantations along National Highways","Construct green expressways","Establish biodiversity parks in cities"], answer:1},
+
+{q:"During the first phase of the Arogya Van initiative, NHAI will cover approximately:", options:["15 land parcels over 50 hectares","17 land parcels over 62.8 hectares","20 land parcels over 70 hectares","18 land parcels over 65 hectares"], answer:1},
+
+{q:"Which of the following initiatives is directly associated with improving accessibility for differently-abled passport applicants?", options:["Skills Outcomes Fund (SOF)","Braille and Sign Language services at Regional Passport Office (RPO), Bhopal","Arogya Van","Aluminium Bharat"], answer:1},
+
+{q:"Which of the following pairs is correctly matched?", options:["Prototype Fast Breeder Reactor (PFBR) — Uranium-Plutonium Mixed Oxide (MOX) fuel","Arogya Van — Offshore wind energy corridors","Skills Outcomes Fund (SOF) — Pension fund management initiative","Aluminium Bharat — National biodiversity conservation programme"], answer:0},
+
+{q:"Vice President C. P. Radhakrishnan recently released the updated edition of the Constitution of India in which language on Sindhi Language Day (Sindhi Bhasha Diwas) 2026?", options:["Konkani","Sindhi","Kashmiri","Dogri"], answer:1},
+
+{q:"The updated edition of the Constitution of India released in Sindhi language includes publications in which combination of scripts?", options:["Roman and Devanagari","Devanagari and Persian","Gurmukhi and Persian","Devanagari and Urdu"], answer:1},
+
+{q:"The updated edition of the Constitution of India in Sindhi language was released at:", options:["Vigyan Bhawan, New Delhi","Rashtrapati Bhavan, New Delhi","Uparashtrapati Bhawan, New Delhi","Parliament House, New Delhi"], answer:2},
+
+{q:"The initiative of releasing the Constitution of India in Sindhi language has been aligned with which national vision?", options:["Digital India","Atmanirbhar Bharat","Viksit Bharat 2047","PM Gati Shakti"], answer:2},
+
+{q:"The Ministry of Commerce and Industry (MoC&I), through the Department for Promotion of Industry and Internal Trade (DPIIT), notified Startup India Fund of Funds (FoF) 2.0 with a corpus of:", options:["Rs.5,000 crore","Rs.7,500 crore","Rs.10,000 crore","Rs.12,000 crore"], answer:2},
+
+{q:"Startup India Fund of Funds (FoF) 2.0 will primarily operate across which Finance Commission cycles?", options:["14th and 15th Finance Commissions","15th and 16th Finance Commissions","16th and 17th Finance Commissions","17th and 18th Finance Commissions"], answer:2},
+
+{q:"Which institution has been designated as the Implementation Agency (IA) for Startup India Fund of Funds (FoF) 2.0?", options:["NABARD","SIDBI","IFCI","EXIM Bank"], answer:1},
+
+{q:"Under Startup India Fund of Funds (FoF) 2.0, the Empowered Committee (EC) is chaired by:", options:["Rajesh Kumar Singh","Amardeep Singh Bhatia","Tuhin Kanta Pandey","Anurag Jain"], answer:1},
+
+{q:"Andhra Pradesh Chief Minister N. Chandrababu Naidu inaugurated India's first Open-Access Amaravati Quantum Reference Facility (AQRF) at:", options:["Visakhapatnam","Amaravati","Tirupati","Vijayawada"], answer:1},
+
+{q:"The Amaravati Quantum Reference Facility (AQRF) consists of Amaravati 1S and Amaravati 1Q located respectively at:", options:["Andhra University and IIIT Tirupati","SRM University, Neerukonda and Medha Towers, Gannavaram","IIT Tirupati and IISER Tirupati","VIT-AP University and APIIC Towers"], answer:1},
+
+{q:"The quantum systems installed under the Amaravati Quantum Reference Facility (AQRF) operate at temperatures close to:", options:["–196°C","–150°C","–273°C (absolute zero)","–100°C"], answer:2},
+
+{q:"Union Minister Manohar Lal Khattar launched the Operational Guidelines for the Urban Challenge Fund (UCF) under which ministry?", options:["Ministry of Finance","Ministry of Housing and Urban Affairs","Ministry of Rural Development","Ministry of Commerce and Industry"], answer:1},
+
+{q:"The Urban Challenge Fund (UCF) provides total Central Assistance of:", options:["Rs.50,000 crore","Rs.75,000 crore","Rs.1 lakh crore","Rs.1.5 lakh crore"], answer:2},
+
+{q:"Under the Urban Challenge Fund (UCF), the allocation earmarked specifically for project funding is:", options:["Rs.80,000 crore","Rs.85,000 crore","Rs.90,000 crore","Rs.95,000 crore"], answer:2},
+
+{q:"The Credit Repayment Guarantee Sub-Scheme (CRGSS) launched along with the Urban Challenge Fund provides collateral-free guarantee coverage up to:", options:["75% of the loan","80% of the loan","90% of the loan","100% of the loan"], answer:2},
+
+{q:"During his visit to Karnataka, Prime Minister Narendra Modi inaugurated Sri Guru Bhairavaikya Mandira at:", options:["Udupi","Mandya","Sri Kshetra Adichunchanagiri","Mysuru"], answer:2},
+
+{q:"During the Karnataka visit, Prime Minister Narendra Modi released which publication?", options:["Bhagavad Gita Commentary","Saundarya Lahari and Shiva Mahimna Stotram","Vedas of Bharat","Ramayana Saar"], answer:1},
+
+{q:"The Ministry of Commerce and Industry (MoC&I) notified India's first chip fabrication plant at:", options:["GIFT City, Gujarat","Sanand, Gujarat","Dholera Special Economic Zone (SEZ), Gujarat","Dahej SEZ, Gujarat"], answer:2},
+
+{q:"India's first chip fabrication plant at Dholera SEZ will be established by:", options:["Tata Electronics Private Limited","Tata Semiconductor Manufacturing Private Limited (TSMPL)","Semiconductor Laboratory (SCL)","Vedanta Semiconductors Limited"], answer:1},
+
+{q:"The proposed chip fabrication plant at Dholera SEZ involves an investment of approximately:", options:["Rs.81,000 crore","Rs.85,000 crore","Rs.91,000 crore","Rs.95,000 crore"], answer:2},
+
+{q:"The Ministry of Electronics and Information Technology (MeitY) constituted the Artificial Intelligence Governance and Economic Group (AIGEG) primarily to:", options:["Promote AI startups only","Serve as India's central institutional mechanism for AI governance and policy coordination","Develop semiconductor manufacturing","Frame cyber security laws only"], answer:1},
+
+{q:"The Artificial Intelligence Governance and Economic Group (AIGEG) will receive technical support from:", options:["National Informatics Centre (NIC)","Technology and Policy Expert Committee (TPEC)","Digital India Corporation (DIC)","IndiaAI Mission Secretariat"], answer:1},
+
+{q:"The Artificial Intelligence Governance and Economic Group (AIGEG) is chaired by:", options:["Dr. Jitendra Singh","Ashwini Vaishnaw","Piyush Goyal","Rajeev Chandrasekhar"], answer:1},
+
+{q:"The Ministry of Coal signed India's first-ever commercial agreements under the Underground Coal Gasification (UCG) framework as part of:", options:["12th round of coal auctions","13th round of coal auctions","14th round of commercial coal auctions","15th round of coal auctions"], answer:2},
+
+{q:"Underground Coal Gasification (UCG) technology primarily converts coal into:", options:["Biofuel","Synthetic Gas (Syngas)","Liquefied Petroleum Gas (LPG)","Hydrogen Fuel"], answer:1},
+
+{q:"The first commercial Underground Coal Gasification (UCG) agreements covered coal mines located in:", options:["Chhattisgarh and Jharkhand","Odisha and West Bengal","Andhra Pradesh and Odisha","Madhya Pradesh and Telangana"], answer:2},
+
+{q:"Following the latest agreements under the Underground Coal Gasification (UCG) framework, the total number of commercial coal mine agreements has reached:", options:["118","128","138","148"], answer:2},
+
+{q:"The Department of Social Justice & Empowerment reported total expenditure of approximately:", options:["Rs.1,842.08 crore","Rs.1,942.08 crore","Rs.2,042.08 crore","Rs.2,242.08 crore"], answer:2},
+
+{q:"The overall increase in expenditure by the Department of Social Justice & Empowerment during FY 2025–26 was approximately:", options:["26.96%","31.96%","36.96%","41.96%"], answer:2},
+
+{q:"Which scholarship category recorded the highest percentage increase in expenditure under the Department of Social Justice & Empowerment?", options:["Pre-Matric Scholarship","Post-Matric Scholarship","Top Class Education (Schools)","Overseas Scholarship"], answer:2},
+
+{q:"Union Home Minister Amit Shah launched multiple dairy and cooperative projects in which Union Territory?", options:["Jammu & Kashmir","Ladakh","Chandigarh","Lakshadweep"], answer:1},
+
+{q:"The proposed dairy processing plant at Leh is planned with a processing capacity of:", options:["20,000 litres per day","30,000 litres per day","50,000 litres per day","75,000 litres per day"], answer:2},
+
+{q:"Which digital application launched during the dairy cooperative projects is used for digital milk procurement tracking?", options:["e-Dairy","AMCS Digital App","MilkNet India","Dairy Connect"], answer:1},
+
+{q:"According to ICAR-CMFRI, India's marine fish production during 2025 reached approximately:", options:["32.7 lakh tonnes","34.2 lakh tonnes","35.7 lakh tonnes","37.5 lakh tonnes"], answer:2},
+
+{q:"Which state emerged as the largest marine fish producer in India during 2025?", options:["Gujarat","Kerala","Tamil Nadu","Karnataka"], answer:2},
+
+{q:"Which fish species recorded the highest production during 2025 according to ICAR-CMFRI?", options:["Sardine","Tuna","Indian Mackerel","Pomfret"], answer:2},
+
+{q:"According to ICAR-CMFRI, pelagic fish accounted for approximately what share of India's marine fish production?", options:["44%","49%","54%","59%"], answer:2},
+
+{q:"The Indian Institute of Foreign Trade (IIFT) recently celebrated its:", options:["60th Foundation Day","61st Foundation Day","62nd Foundation Day","63rd Foundation Day"], answer:3},
+
+{q:"The Indian Institute of Foreign Trade (IIFT) functions as an autonomous body under which ministry?", options:["Ministry of External Affairs","Ministry of Finance","Ministry of Commerce and Industry","Ministry of Education"], answer:2},
+
+{q:"Which of the following pairs is correctly matched?", options:["AIGEG — Central institutional mechanism for AI governance in India","Urban Challenge Fund — Semiconductor manufacturing support scheme","Startup India Fund of Funds 2.0 — Marine fisheries development programme","Amaravati Quantum Reference Facility — India's first commercial chip fabrication plant"], answer:0},
+
+{q:"Union Minister Jyotiraditya Scindia recently launched the Cell Broadcast System (CBS) to strengthen India's disaster communication mechanism. The system has been developed by which organization?", options:["Bharat Electronics Limited (BEL)","Centre for Development of Telematics (C-DOT)","National Informatics Centre (NIC)","Centre for Railway Information Systems (CRIS)"], answer:1},
+
+{q:"The Cell Broadcast System (CBS), launched for geo-targeted emergency alerts, functions under which department?", options:["Department of Space (DoS)","Department of Telecommunications (DoT)","Department of Science & Technology (DST)","Department of Electronics and Information Technology (DeitY)"], answer:1},
+
+{q:"The newly launched Cell Broadcast System (CBS) delivers emergency alerts through which platform?", options:["UMANG Platform","SACHET Platform based on Common Alerting Protocol (CAP)","DigiLocker Platform","National Knowledge Network (NKN)"], answer:1},
+
+{q:"Which of the following is NOT mentioned as an intended application of the Cell Broadcast System (CBS)?", options:["Disaster alerts","Char Dham Yatra monitoring","Tsunami warning dissemination","Geo-targeted emergency communication"], answer:2},
+
+{q:"The National Highways Authority of India (NHAI) launched India's first Multi-Lane Free Flow (MLFF) tolling system at:", options:["Delhi–Meerut Expressway","Chorayasi Toll Plaza on NH-48 (Surat–Bharuch), Gujarat","Mumbai–Pune Expressway","Dwarka Expressway"], answer:1},
+
+{q:"The Multi-Lane Free Flow (MLFF) tolling system combines FASTag with which technology?", options:["Facial Recognition Technology (FRT)","Automatic Number Plate Recognition (ANPR)","Global Positioning System (GPS)","Optical Character Recognition (OCR)"], answer:1},
+
+{q:"Under the Multi-Lane Free Flow (MLFF) tolling system, failure to pay toll within 72 hours attracts:", options:["50% additional fee","Triple toll fee","Double toll fee","Permanent FASTag suspension"], answer:2},
+
+{q:"The primary objective of introducing India's first Multi-Lane Free Flow (MLFF) tolling system is to:", options:["Increase toll tax rates","Introduce cashless toll plazas only","Enable barrier-less toll collection and reduce congestion","Replace FASTag with GPS billing"], answer:2},
+
+{q:"Bengaluru-based startup GalaxEye recently launched the world's first commercial OptaSAR satellite named:", options:["Mission Gaganyaan","Mission Drishti","Mission Nayan","Mission Vyom"], answer:1},
+
+{q:"The world's first OptaSAR commercial satellite was launched aboard which launch vehicle?", options:["PSLV-C60","GSLV Mk III","Falcon 9 of SpaceX","Ariane 6"], answer:2},
+
+{q:"The OptaSAR satellite integrates which two imaging technologies?", options:["Infrared and LiDAR","Electro-Optical (EO) and Synthetic Aperture Radar (SAR)","GPS and LiDAR","Optical Telescope and Thermal Imaging"], answer:1},
+
+{q:"According to GalaxEye's roadmap, the company plans to establish a constellation of approximately:", options:["5 satellites by 2028","8 satellites by 2029","10 satellites by 2030","12 satellites by 2032"], answer:2},
+
+{q:"The Ministry of Health & Family Welfare (MoHFW) observed Fire Safety Week 2026 during:", options:["April 1–7","May 4–10","June 5–11","July 1–7"], answer:1},
+
+{q:"The official theme of Fire Safety Week 2026 was:", options:["Fire Safety for Every Citizen","Safe Schools, Safe Hospitals, and a Fire-Safety Aware Society","Fire Prevention through Technology","Disaster Preparedness for All"], answer:1},
+
+{q:"During Fire Safety Week 2026, states were instructed to upload fire audit details on which portal?", options:["Ayushman Bharat Digital Mission Portal","IHIP Portal","CoWIN Portal","eSanjeevani Portal"], answer:1},
+
+{q:"The National Workshop on Panchayat Development Plans was organized by which ministry?", options:["Ministry of Rural Development","Ministry of Panchayati Raj","Ministry of Agriculture & Farmers Welfare","Ministry of Home Affairs"], answer:1},
+
+{q:"During the National Workshop on Panchayat Development Plans, which portal was revamped?", options:["Gram Manchitra","eGramSwaraj","Bharat Maps Portal","Rural India Portal"], answer:1},
+
+{q:"Rural Local Bodies have been allocated approximately how much for the period 2026–31?", options:["₹3.85 lakh crore","₹4.10 lakh crore","₹4.35 lakh crore","₹4.75 lakh crore"], answer:2},
+
+{q:"The revamped eGramSwaraj Portal primarily facilitates:", options:["Digital crop insurance settlement","Panchayat planning, accounting and monitoring of development works","Rural employment registration only","Digital land record modernization"], answer:1},
+
+{q:"The National Stock Exchange (NSE) recently launched trading in:", options:["Sovereign Gold Bonds","Electronic Gold Receipts (EGR)","Gold Exchange Traded Funds (ETF)","Digital Gold Units"], answer:1},
+
+{q:"Electronic Gold Receipts (EGRs) are backed by:", options:["RBI gold reserves","Imported bullion only","Physical gold stored in SEBI-approved vaults","Sovereign Gold Bonds"], answer:2},
+
+{q:"Electronic Gold Receipts (EGRs) are maintained by investors in:", options:["Savings Account","Current Account","Demat Account","Gold Savings Account"], answer:2},
+
+{q:"Indian Ocean Ship (IOS) Sagar, represented by INS Sunayna, recently arrived at:", options:["Chittagong, Bangladesh","Yangon Harbour, Myanmar","Colombo, Sri Lanka","Phuket, Thailand"], answer:1},
+
+{q:"The visit of INS Sunayna to Myanmar was aligned with which strategic vision?", options:["SAGAR Vision only","Act East Policy only","MAHASAGAR Vision and Neighbourhood First Policy","Indo-Pacific Oceans Initiative only"], answer:2},
+
+{q:"MAHASAGAR stands for:", options:["Maritime Harmony and Security Across Global Asian Regions","Mutual and Holistic Advancement for Security Across Regions","Maritime Alliance for Sustainable Growth Across Regions","Mutual Assistance for Safe Global Asian Routes"], answer:1},
+
+{q:"The Ministry of Education organized a pre-event roadshow for Bharat Innovates 2026 in:", options:["London","Berlin","Paris","Tokyo"], answer:2},
+
+{q:"The main event of Bharat Innovates 2026 is scheduled to be held in:", options:["Paris","Lyon","Nice","Marseille"], answer:2},
+
+{q:"Which of the following is NOT one of the focus sectors of Bharat Innovates 2026?", options:["Biotechnology","Space & Defence","Advanced Computing","Textile Manufacturing"], answer:3},
+
+{q:"India's first comprehensive Urban Testbed and Aerosol Observatory has been established in:", options:["Pune","Bengaluru","Chennai","Hyderabad"], answer:2},
+
+{q:"The Urban Testbed and Aerosol Observatory has been established by which autonomous institute under the Ministry of Earth Sciences (MoES)?", options:["National Centre for Medium Range Weather Forecasting (NCMRWF)","Indian Institute of Tropical Meteorology (IITM), Pune","National Institute of Ocean Technology (NIOT)","India Meteorological Department (IMD)"], answer:1},
+
+{q:"The project for establishing India's first Urban Testbed and Aerosol Observatory involves an investment of approximately:", options:["₹40 crore","₹50 crore","₹60 crore","₹75 crore"], answer:2},
+
+{q:"The Swasth Bharat Portal has been launched by which ministry?", options:["Ministry of Electronics & Information Technology","Ministry of Health & Family Welfare","Ministry of Science & Technology","Ministry of Home Affairs"], answer:1},
+
+{q:"The Swasth Bharat Portal was launched during the:", options:["National Digital Health Mission Summit","10th National Summit on Innovation and Inclusivity: Best Practices Shaping India's Health Future","India Health Conclave 2026","Global Digital Health Forum"], answer:1},
+
+{q:"The primary objective of the Swasth Bharat Portal is to:", options:["Digitize medical colleges only","Integrate fragmented health programme systems into a unified digital platform","Provide telemedicine services exclusively","Create electronic health insurance records only"], answer:1},
+
+{q:"India's first Green Methanol Production Plant is being established at:", options:["Paradip Port, Odisha","Deendayal Port Authority (DPA), Kutch, Gujarat","Jawaharlal Nehru Port, Maharashtra","Cochin Port, Kerala"], answer:1},
+
+{q:"The Green Methanol Plant will utilize which invasive plant species as feedstock?", options:["Water Hyacinth","Lantana camara","Prosopis juliflora","Parthenium hysterophorus"], answer:2},
+
+{q:"The proposed Green Methanol Plant is expected to produce approximately:", options:["2 tonnes of methanol per day","3 tonnes of methanol per day","5 tonnes of methanol per day","8 tonnes of methanol per day"], answer:2},
+
+{q:"Which of the following initiatives is directly associated with barrier-less toll collection on National Highways?", options:["Cell Broadcast System (CBS)","Multi-Lane Free Flow (MLFF) Tolling System","SACHET Platform","eGramSwaraj Portal"], answer:1},
+
+{q:"Which initiative has been launched to integrate physical gold with India's financial markets through electronic trading?", options:["Sovereign Gold Bond Scheme","Electronic Gold Receipts (EGR) Trading","India Bullion Exchange Portal","Gold Monetisation Scheme"], answer:1},
+
+{q:"Which of the following pairs is correctly matched?", options:["Mission Drishti — World's first OptoSAR commercial satellite","Swasth Bharat Portal — Multi-lane toll collection system","eGramSwaraj Portal — AI governance framework","Cell Broadcast System — Electronic gold trading platform"], answer:0},
+
+];
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 2700;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
